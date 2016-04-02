@@ -139,6 +139,7 @@ public class MainFrame extends javax.swing.JFrame {
         this.initMyJXStatusBarCountryLabelMouseAdapter();
         this.initMyJXStatusBarImageLabelMouseAdapter();
         this.initStockInfoDatabaseMeta();
+        this.initActivatedBoards();
         this.initDatabase(true);
         this.initAjaxProvider();
         //System.out.println("DEBUG600");
@@ -370,6 +371,7 @@ public class MainFrame extends javax.swing.JFrame {
         buttonGroup1 = new javax.swing.ButtonGroup();
         buttonGroup2 = new javax.swing.ButtonGroup();
         buttonGroup3 = new javax.swing.ButtonGroup();
+        buttonGroup4 = new javax.swing.ButtonGroup();
         jComboBox1 = new AutoCompleteJComboBox();
         jPanel6 = new javax.swing.JPanel();
         jTabbedPane1 = new javax.swing.JTabbedPane();
@@ -403,6 +405,9 @@ public class MainFrame extends javax.swing.JFrame {
         jRadioButtonMenuItem6 = new javax.swing.JRadioButtonMenuItem();
         jRadioButtonMenuItem3 = new javax.swing.JRadioButtonMenuItem();
         jRadioButtonMenuItem5 = new javax.swing.JRadioButtonMenuItem();
+        jMenu12 = new javax.swing.JMenu();
+        jRadioButtonMenuItem7 = new javax.swing.JRadioButtonMenuItem();
+        jRadioButtonMenuItem8 = new javax.swing.JRadioButtonMenuItem();
         jMenu7 = new javax.swing.JMenu();
         jMenuItem8 = new javax.swing.JMenuItem();
         jMenu9 = new javax.swing.JMenu();
@@ -657,6 +662,65 @@ public class MainFrame extends javax.swing.JFrame {
         jMenu10.add(jRadioButtonMenuItem5);
 
         jMenuBar2.add(jMenu10);
+
+        jMenu12.setText(bundle.getString("MainFrame_Language")); // NOI18N
+
+        buttonGroup4.add(jRadioButtonMenuItem7);
+        jRadioButtonMenuItem7.setSelected(true);
+        jRadioButtonMenuItem7.setText("English");
+        jRadioButtonMenuItem7.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jRadioButtonMenuItem7ActionPerformed(evt);
+            }
+        });
+        jMenu12.add(jRadioButtonMenuItem7);
+
+        buttonGroup4.add(jRadioButtonMenuItem8);
+        jRadioButtonMenuItem8.setText("Tiếng Việt");
+        jRadioButtonMenuItem8.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jRadioButtonMenuItem8ActionPerformed(evt);
+            }
+        });
+        jMenu12.add(jRadioButtonMenuItem8);
+
+        /*buttonGroup3.add(jRadioButtonMenuItem4);
+        jRadioButtonMenuItem4.setText(Locale.TRADITIONAL_CHINESE.getDisplayName(Locale.getDefault()));
+        jRadioButtonMenuItem4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jRadioButtonMenuItem4ActionPerformed(evt);
+            }
+        });
+        jMenu12.add(jRadioButtonMenuItem4);
+
+        buttonGroup3.add(jRadioButtonMenuItem6);
+        jRadioButtonMenuItem6.setText(Locale.FRENCH.getDisplayLanguage(Locale.getDefault()));
+        jRadioButtonMenuItem6.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jRadioButtonMenuItem6ActionPerformed(evt);
+            }
+        });
+        jMenu12.add(jRadioButtonMenuItem6);
+
+        buttonGroup3.add(jRadioButtonMenuItem3);
+        jRadioButtonMenuItem3.setText(Locale.GERMAN.getDisplayLanguage(Locale.getDefault()));
+        jRadioButtonMenuItem3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jRadioButtonMenuItem3ActionPerformed(evt);
+            }
+        });
+        jMenu12.add(jRadioButtonMenuItem3);
+
+        buttonGroup3.add(jRadioButtonMenuItem5);
+        jRadioButtonMenuItem5.setText(Locale.ITALIAN.getDisplayLanguage(Locale.getDefault()));
+        jRadioButtonMenuItem5.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jRadioButtonMenuItem5ActionPerformed(evt);
+            }
+        });
+        jMenu12.add(jRadioButtonMenuItem5);*/
+
+        jMenuBar2.add(jMenu12);
 
         jMenu7.setText(bundle.getString("MainFrame_Database")); // NOI18N
 
@@ -1165,6 +1229,30 @@ public class MainFrame extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_jTable1KeyPressed
 
+    public void newFilter()
+    {
+      System.out.println("DEBUG newFilter");
+      RowFilter<StockTableModel,Integer> boardFilter = new RowFilter<StockTableModel, Integer>() {
+        public boolean include(Entry<? extends StockTableModel, ? extends Integer> entry) {
+          StockTableModel tableModel = entry.getModel();
+          Stock stock = tableModel.getStock(entry.getIdentifier());
+          System.out.println("DEBUG Check stock board "+stock.getBoard());
+          if(stock.getBoard().toString().equals("Unknown"))
+            return true;
+          for (String board : activatedBoards) {
+            System.out.println("DEBUG Check board "+board);
+            if (stock.getBoard().toString().equals(board)) {
+              // Returning true indicates this row should be shown.
+              return true;
+            }
+          }
+          // If stock doesn't have board, don't show it.
+          return false;
+        }
+      };
+      ((TableRowSorter<StockTableModel>)jTable1.getRowSorter()).setRowFilter(boardFilter);
+    }
+
     private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
         isFormWindowClosingCalled = true;
         
@@ -1397,6 +1485,7 @@ public class MainFrame extends javax.swing.JFrame {
             final int result = JOptionPane.showConfirmDialog(this, MessagesBundle.getString("question_message_restart_now"), MessagesBundle.getString("question_title_restart_now"), JOptionPane.YES_NO_OPTION);
             if (result == JOptionPane.YES_OPTION) {
                 final Locale locale = new Locale(Locale.ENGLISH.getLanguage(), Locale.getDefault().getCountry(), Locale.getDefault().getVariant());
+                //final Locale locale = new Locale(Locale.VIETNAM.getLanguage(), Locale.getDefault().getCountry(), Locale.getDefault().getVariant());
                 this.jStockOptions.setLocale(locale);
                 org.yccheok.jstock.gui.Utils.restartApplication(this);
             } // return to the previous selection if the user press "no" in the dialog
@@ -1536,6 +1625,58 @@ public class MainFrame extends javax.swing.JFrame {
             }
         }
     }//GEN-LAST:event_jRadioButtonMenuItem5ActionPerformed
+
+    private void jRadioButtonMenuItem7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jRadioButtonMenuItem7ActionPerformed
+        //System.out.println("DEBUG Action 14");
+        /*if (false == org.yccheok.jstock.gui.Utils.hasSpecifiedLanguageFile(this.jStockOptions.getLocale())) {
+            // User is currently using default langauge. English is our default
+            // langauge. Hence, do nothing and return early. This is because we 
+            // want to avoid from having the following locale.
+            //
+            // Locale(ENGLISH, FRANCE)
+            //
+            // This will yield incorrect behavior during currency formatting.
+            // We prefer to have
+            //
+            // Locale(FRANCE, FRANCE)
+            //
+            // English language will be displayed still, as we do not have 
+            // FRANCE language file yet.
+            //
+            return;
+        }*/
+        
+        // Avoid from Confirm Dialog to pop up when user change to same language (i.e. english)
+        if ((this.jStockOptions.getLanguage() == null) || (false == this.jStockOptions.getLanguage().equals("English"))) {
+          this.jStockOptions.setLanguage("English");
+        }
+    }//GEN-LAST:event_jRadioButtonMenuItem7ActionPerformed
+
+    private void jRadioButtonMenuItem8ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jRadioButtonMenuItem8ActionPerformed
+        //System.out.println("DEBUG Action 14");
+        /*if (false == org.yccheok.jstock.gui.Utils.hasSpecifiedLanguageFile(this.jStockOptions.getLocale())) {
+            // User is currently using default langauge. English is our default
+            // langauge. Hence, do nothing and return early. This is because we 
+            // want to avoid from having the following locale.
+            //
+            // Locale(ENGLISH, FRANCE)
+            //
+            // This will yield incorrect behavior during currency formatting.
+            // We prefer to have
+            //
+            // Locale(FRANCE, FRANCE)
+            //
+            // English language will be displayed still, as we do not have 
+            // FRANCE language file yet.
+            //
+            return;
+        }*/
+        
+        // Avoid from Confirm Dialog to pop up when user change to same language (i.e. english)
+        if ((this.jStockOptions.getLanguage() == null) || (false == this.jStockOptions.getLanguage().equals("Tiếng Việt"))) {
+          this.jStockOptions.setLanguage("Tiếng Việt");
+        }
+    }//GEN-LAST:event_jRadioButtonMenuItem8ActionPerformed
 
     private void jMenuItem15ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem15ActionPerformed
         //System.out.println("DEBUG Action 21");
@@ -2014,25 +2155,27 @@ public class MainFrame extends javax.swing.JFrame {
         // Czech is only for currency exchange purpose.
         countries.remove(Country.Czech);
 
-    	countries.remove(Country.Austria);
-    	countries.remove(Country.Belgium);
-    	countries.remove(Country.Brazil);
-    	countries.remove(Country.Canada);
-    	countries.remove(Country.Denmark);
-    	countries.remove(Country.France);
-    	countries.remove(Country.Germany);
-    	countries.remove(Country.India);
-    	countries.remove(Country.Indonesia);
-    	countries.remove(Country.Israel);
-    	countries.remove(Country.Italy);
-    	countries.remove(Country.Malaysia);
-    	countries.remove(Country.Netherlands);
-    	countries.remove(Country.NewZealand);
-    	countries.remove(Country.Norway);
-    	countries.remove(Country.Portugal);
-    	countries.remove(Country.Spain);
-    	countries.remove(Country.Sweden);
-    	countries.remove(Country.Switzerland);
+        // Hai remove from GUI countries no relating vietnam
+        // Remaining contries: Australia, China, Hongkong, Korea, Singapore, Taiwan, UK, US
+        countries.remove(Country.Austria);
+        countries.remove(Country.Belgium);
+        countries.remove(Country.Brazil);
+        countries.remove(Country.Canada);
+        countries.remove(Country.Denmark);
+        countries.remove(Country.France);
+        countries.remove(Country.Germany);
+        countries.remove(Country.India);
+        countries.remove(Country.Indonesia);
+        countries.remove(Country.Israel);
+        countries.remove(Country.Italy);
+        countries.remove(Country.Malaysia);
+        countries.remove(Country.Netherlands);
+        countries.remove(Country.NewZealand);
+        countries.remove(Country.Norway);
+        countries.remove(Country.Portugal);
+        countries.remove(Country.Spain);
+        countries.remove(Country.Sweden);
+        countries.remove(Country.Switzerland);
 
         for (final Country country : countries) {
             // Ugly fix on spelling mistake.
@@ -2401,6 +2544,7 @@ public class MainFrame extends javax.swing.JFrame {
         // Need to read user-defined-database.xml.
         // The user-defined-database.xml is extracted from cloud
         // freshly.
+        //this.initActivatedBoards();
         this.initDatabase(true);
         this.initAjaxProvider();
         //System.out.println("DEBUG500");
@@ -2487,6 +2631,7 @@ public class MainFrame extends javax.swing.JFrame {
         this.indicatorScannerJPanel.stop();
         this.indicatorScannerJPanel.clear();
 
+        this.initActivatedBoards();
         this.initDatabase(true);
         this.initAjaxProvider();
         //System.out.println("DEBUG800");
@@ -2620,7 +2765,6 @@ public class MainFrame extends javax.swing.JFrame {
                         // from disk.
                         initDatabase(true);
                     }
-                    //System.out.println("DEBUG101");
                             
                 }
             }
@@ -3356,11 +3500,8 @@ public class MainFrame extends javax.swing.JFrame {
             
             Utils.createCompleteDirectoryHierarchyIfDoesNotExist(org.yccheok.jstock.gui.Utils.getUserDataDirectory() + country + File.separator + "database");
 
-            //System.out.println("DEBUG2");
-            //System.out.println("Before stockInfoDatabase: "+MainFrame.this.stockInfoDatabase);
-            //Utils.downloadAsTempFile("http://finance.vietstock.vn/VNM-viet-nam-dairy-products-joint-stock-company.htm");
-            //Utils.downloadAsTempFile("http://finance.vietstock.vn/GAS/transaction-statistics.htm");
-            //Utils.downloadAsTempFile("http://finance.vietstock.vn/PGD-petrovietnam-low-pressure-gas-distribution-jsc.htm");
+            //System.out.println(" DEBUG Before stockInfoDatabase: "+MainFrame.this.stockInfoDatabase);
+            Utils.downloadAsTempFile("http://en.vietstock.com.vn");
             if (this.readFromDisk)
             {
                 StockInfoDatabase tmp_stock_info_database = loadStockInfoDatabaseFromCSV(country);
@@ -3449,15 +3590,26 @@ public class MainFrame extends javax.swing.JFrame {
             }
             // Try to parse the CSV file.
             //System.out.println("DEBUG8");
-            boolean vstock_flag = false;
+            /*boolean vstock_flag = false;
             if (country.toString() == "Vietnam") {
               vstock_flag = true;
             }
-            final java.util.List<Stock> stocks = org.yccheok.jstock.engine.Utils.getStocksFromCSVFile(file, vstock_flag);
+            //final java.util.List<Stock> stocks = org.yccheok.jstock.engine.Utils.getStocksFromCSVFile(file, vstock_flag);*/
+            java.util.List<Stock> tmp_stocks;
+            if (country.toString() == "Vietnam") {
+              tmp_stocks = org.yccheok.jstock.engine.Utils.getVietStocks();
+              //tmp_stocks = org.yccheok.jstock.engine.Utils.getVietStocksFromCSVFile(file);
+            } else {
+              tmp_stocks = org.yccheok.jstock.engine.Utils.getStocksFromCSVFile(file);
+            }
+            final java.util.List<Stock> stocks = tmp_stocks;
+            //System.out.println("DEBUG stocks size "+stocks.size());
             // Is the stocks good enough?
             if (false == stocks.isEmpty()) {
                 //System.out.println("DEBUG9");
+                //System.out.println("DEBUG prepare toStockDatabase ");
                 final Pair<StockInfoDatabase, StockNameDatabase> stockDatabase = org.yccheok.jstock.engine.Utils.toStockDatabase(stocks, country);
+                //System.out.println("DEBUG finish toStockDatabase ");
 
                 // After time consuming operation, check whether we should
                 // cancel.
@@ -3465,6 +3617,7 @@ public class MainFrame extends javax.swing.JFrame {
                     return false;
                 }
 
+                //System.out.println("DEBUG prepare saveStockInfoDatabaseAsCSV ");
                 // Save to disk.
                 MainFrame.saveStockInfoDatabaseAsCSV(country, stockDatabase.first);
                 if (stockDatabase.second != null) {
@@ -3985,6 +4138,30 @@ public class MainFrame extends javax.swing.JFrame {
         this.marketThread.start();
     }
     
+    private void initActivatedBoards() {
+        Country country = this.jStockOptions.getCountry();
+        activatedBoards.clear();
+        activatedBoards.addAll(org.yccheok.jstock.engine.Utils.getBoards(country));
+        for (String board : activatedBoards) {
+          System.out.println("DEBUG init board "+board);
+        }
+    }
+    public void deactivateBoard(String board) {
+        if (activatedBoards != null) {
+          System.out.println("DEBUG Doing deactivate board "+board);
+          for (String board2 : activatedBoards) {
+            System.out.println("DEBUG iterate board "+board2);
+          }
+          activatedBoards.remove(board);
+          System.out.println("DEBUG Finish deactivate board ");
+        }
+    }
+    public void activateBoard(String board) {
+        if (activatedBoards != null) {
+          activatedBoards.add(board);
+        }
+    }
+
     private void initAjaxProvider() {
         Country country = this.jStockOptions.getCountry();
         
@@ -4034,7 +4211,7 @@ public class MainFrame extends javax.swing.JFrame {
                         final String stocksCSVFileLocation = org.yccheok.jstock.engine.Utils.getStocksCSVFileLocation(country);
                         final File file = Utils.downloadAsTempFile(stocksCSVFileLocation);
                         if (file != null) {                            
-                            final java.util.List<Stock> stocks = org.yccheok.jstock.engine.Utils.getStocksFromCSVFile(file, false);
+                            final java.util.List<Stock> stocks = org.yccheok.jstock.engine.Utils.getStocksFromCSVFile(file);
                             
                             if (false == stocks.isEmpty()) {
                                 final Pair<StockInfoDatabase, StockNameDatabase> stockDatabase = org.yccheok.jstock.engine.Utils.toStockDatabase(stocks, country);
@@ -4100,13 +4277,10 @@ public class MainFrame extends javax.swing.JFrame {
             this.databaseTask = new DatabaseTask(readFromDisk);
             //System.out.println("DEBUG200");
             this.databaseTask.execute();
-            //System.out.println("DEBUG201");
         }
-        //System.out.println("Check2 stockInfoDatabase: "+this.stockInfoDatabase);
 
         // We may hold a large database previously. Invoke garbage collector to perform cleanup.
         System.gc();
-        //System.out.println("Check3 stockInfoDatabase: "+this.stockInfoDatabase);
     }
         
     private void update(RealTimeStockMonitor monitor, final java.util.List<Stock> stocks) { 
@@ -4118,6 +4292,7 @@ public class MainFrame extends javax.swing.JFrame {
             final Stock stock = stocks.get(i);
             //System.out.println("DEBUG stock "+stock.toString());
             //System.out.println("DEBUG Update Realtime stock "+stock.getName()+" has code: "+stock.code.toString());
+            //System.out.println("DEBUG HAI StockCode "+stock.code.toString()+", symbol "+stock.symbol.toString()+", prevPrice "+stock.getPrevPrice()+", highPrice "+stock.getHighPrice());
             Stock new_stock = stock;
             // Sometimes server goes crazy by returning empty symbol.
             if (isSymbolImmutable || new_stock.symbol.toString().isEmpty()) {                
@@ -4786,6 +4961,7 @@ public class MainFrame extends javax.swing.JFrame {
     private boolean isStatusBarBusy = false;
     
     // A set of stock history which we need to display GUI on them, when user request explicitly.
+    private java.util.List<String> activatedBoards = new java.util.ArrayList<String>();
     private java.util.Set<Code> stockCodeHistoryGUI = new java.util.HashSet<Code>();
     
     private volatile StockInfoDatabase stockInfoDatabase = null;
@@ -4865,11 +5041,13 @@ public class MainFrame extends javax.swing.JFrame {
     private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.ButtonGroup buttonGroup2;
     private javax.swing.ButtonGroup buttonGroup3;
+    private javax.swing.ButtonGroup buttonGroup4;
     private javax.swing.JComboBox jComboBox1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenu jMenu10;
     private javax.swing.JMenu jMenu11;
+    private javax.swing.JMenu jMenu12;
     private javax.swing.JMenu jMenu2;
     private javax.swing.JMenu jMenu3;
     private javax.swing.JMenu jMenu4;
@@ -4908,6 +5086,8 @@ public class MainFrame extends javax.swing.JFrame {
     private javax.swing.JRadioButtonMenuItem jRadioButtonMenuItem4;
     private javax.swing.JRadioButtonMenuItem jRadioButtonMenuItem5;
     private javax.swing.JRadioButtonMenuItem jRadioButtonMenuItem6;
+    private javax.swing.JRadioButtonMenuItem jRadioButtonMenuItem7;
+    private javax.swing.JRadioButtonMenuItem jRadioButtonMenuItem8;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JPopupMenu.Separator jSeparator4;
     private javax.swing.JPopupMenu.Separator jSeparator5;

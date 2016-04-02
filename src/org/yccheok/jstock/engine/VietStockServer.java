@@ -33,6 +33,9 @@ public class VietStockServer implements StockServer {
     protected String getVietStockBasedURL() {
         return "http://finance.vietstock.vn/AjaxData/TradingResult/GetStockData.ashx?scode=";
     }
+    protected String getVietMarketIndexBasedURL() {
+        return "http://ptkt.vietstock.vn/GetMarketInfoData.ashx?catid=";
+    }
 
     public VietStockServer() {
     }
@@ -165,7 +168,15 @@ public class VietStockServer implements StockServer {
     }
 
     private Stock _getStock(Code code) throws StockNotFoundException {
-        final StringBuilder stringBuilder = new StringBuilder(getVietStockBasedURL());
+        String basedURL;
+        if (code.toString().equals("^VNINDEX")) {
+          basedURL = getVietMarketIndexBasedURL()+"1";
+        } else if (code.toString().equals("^HNXINDEX")) {
+          basedURL = getVietMarketIndexBasedURL()+"2";
+        } else {
+          basedURL = getVietStockBasedURL();
+        }
+        final StringBuilder stringBuilder = new StringBuilder(basedURL);
 
         final String _code;
         try {
@@ -174,7 +185,9 @@ public class VietStockServer implements StockServer {
             throw new StockNotFoundException(code.toString(), ex);
         }
 
-        stringBuilder.append(_code).append("&language=en");
+        if (!code.toString().equals("^VNINDEX") && !code.toString().equals("^HNXINDEX")) {
+          stringBuilder.append(_code).append("&language=en");
+        }
 
         final String location = stringBuilder.toString();
 

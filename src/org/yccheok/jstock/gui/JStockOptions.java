@@ -127,6 +127,7 @@ public class JStockOptions {
         this.scanningSpeed = 10000;
         this.alertSpeed = 5;
         this.looknFeel = "com.sun.java.swing.plaf.windows.WindowsLookAndFeel";
+        this.language = "English";
         this.country = Country.Malaysia;
         this.soundEnabled = false;
 
@@ -189,6 +190,7 @@ public class JStockOptions {
     private int scanningSpeed;  /* In ms. */
     private int alertSpeed;
     private String looknFeel;
+    private String language;
     
     private Color normalTextForegroundColor;
     private Color lowerNumericalValueForegroundColor;
@@ -329,6 +331,7 @@ public class JStockOptions {
         this.scanningSpeed = jStockOptions.scanningSpeed;
         this.alertSpeed = jStockOptions.alertSpeed;
         this.looknFeel = jStockOptions.looknFeel;
+        this.language = jStockOptions.language;
 
         this.normalTextForegroundColor = jStockOptions.normalTextForegroundColor;
         this.lowerNumericalValueForegroundColor = jStockOptions.lowerNumericalValueForegroundColor;
@@ -454,6 +457,7 @@ public class JStockOptions {
         jStockOptions.scanningSpeed = this.scanningSpeed;
         jStockOptions.alertSpeed = this.alertSpeed;
         jStockOptions.looknFeel = this.looknFeel;
+        jStockOptions.language = this.language;
 
         jStockOptions.normalTextForegroundColor = this.normalTextForegroundColor;
         jStockOptions.lowerNumericalValueForegroundColor = this.lowerNumericalValueForegroundColor;
@@ -782,6 +786,14 @@ public class JStockOptions {
     
     public void setLookNFeel(String looknFeel) {
         this.looknFeel = looknFeel;
+    }
+    
+    public String getLanguage() {
+        return language;
+    }
+    
+    public void setLanguage(String language) {
+        this.language = language;
     }
     
     public boolean isSingleIndicatorAlert() {

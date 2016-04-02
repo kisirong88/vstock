@@ -24,6 +24,8 @@ package org.yccheok.jstock.engine;
  * @author yccheok
  */
 public enum Index {
+    VNINDEX("VN-Index", Code.newInstance("^VNINDEX")),
+    HNXINDEX("HNX-Index", Code.newInstance("^HNXINDEX")),
     KLSE("KLSE", Code.newInstance("^KLSE")),
     STI("Straits Times Index", Code.newInstance("^STI")),
     DJI("Dow Jones Industrial Average", Code.newInstance("^DJI")),

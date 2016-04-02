@@ -651,6 +651,8 @@ public class Stock {
         NZAX("NZ Alternative Market"),
         
         TASE("Tel Aviv Stock Exchange"),        // Israel
+        HOSE("HOSE"),        // Hai support for Vietname boards
+        HNX("HNX"),        // Hai support for Vietname boards
         
         UserDefined("User Defined"),
         Unknown("Unknown");

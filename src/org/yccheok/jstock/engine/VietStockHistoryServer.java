@@ -107,7 +107,7 @@ public class VietStockHistoryServer implements StockHistoryServer {
         //for (int i = length - 1; i > 0; i--)
         for (int i = 0; i < length; i++) //The order date of VietStock is backward to Yahoo
         {
-            System.out.println("DEBUG stockDatas"+stockDatas[i]);
+            //System.out.println("DEBUG stockDatas"+stockDatas[i]);
             // Use > instead of >=, to avoid header information (Date,Open,High,Low,Close,Volume,Adj Close)
             // Date,Open,High,Low,Close,Volume,Adj Close
             if (stockDatas[i].substring(0, 3).equals("<t>"))
@@ -248,8 +248,8 @@ public class VietStockHistoryServer implements StockHistoryServer {
         final int startYear = duration.getStartDate().getYear()-2000;
 
         final StringBuilder startDateBuilder = new StringBuilder("&fdate=");
-        System.out.println("DEBUG start date: "+startMonth+"/"+startDate+"/"+startYear);
-        System.out.println("DEBUG end date: "+endMonth+"/"+endDate+"/"+endYear);
+        //System.out.println("DEBUG start date: "+startMonth+"/"+startDate+"/"+startYear);
+        //System.out.println("DEBUG end date: "+endMonth+"/"+endDate+"/"+endYear);
         startDateBuilder.append(startMonth).append("%2F").append(startDate).append("%2F").append(startYear);
         final StringBuilder endDateBuilder = new StringBuilder("&tdate=");
         endDateBuilder.append(endMonth).append("%2F").append(endDate).append("%2F").append(endYear);
@@ -260,7 +260,7 @@ public class VietStockHistoryServer implements StockHistoryServer {
         boolean success = false;
 
         for (int retry = 0; retry < NUM_OF_RETRY; retry++) {
-            System.out.println("DEBUG location "+location);
+            //System.out.println("DEBUG location "+location);
             final String respond = org.yccheok.jstock.gui.Utils.getResponseBodyAsStringBasedOnProxyAuthOption(location);
             //System.out.println("DEBUG respond "+respond);
 
@@ -279,6 +279,65 @@ public class VietStockHistoryServer implements StockHistoryServer {
             throw new StockHistoryNotFoundException(code.toString());
         }
     }
+
+    private void downloadHistory(Code code) throws StockHistoryNotFoundException
+    {
+        final StringBuilder stringBuilder = new StringBuilder(getVietStockHistoryBasedURL());
+
+        //Indicate stock code in request to server
+        final String symbol;
+        try {
+            symbol = java.net.URLEncoder.encode(code.toString(), "UTF-8");
+        } catch (UnsupportedEncodingException ex) {
+            throw new StockHistoryNotFoundException("code.toString()=" + code.toString(), ex);
+        }
+
+        stringBuilder.append(symbol);
+
+        //Indicate columns in xml file will be gotten from server
+        final StringBuilder columnBuilder = new StringBuilder("&lcol=TKLGD%2CTGTGD%2CCN%2CTN%2CGD1%2CGD2%2CGD3%2C");
+        stringBuilder.append(columnBuilder);
+        final StringBuilder formatBuilder = new StringBuilder("&sort=Time&dir=desc&page=1&psize=0");
+        stringBuilder.append(formatBuilder);
+
+        //Indicate date in request to server
+        final int endMonth = duration.getEndDate().getMonth()+1; //Hai fix bug, havent found root cause
+        final int endDate = duration.getEndDate().getDate();
+        final int endYear = duration.getEndDate().getYear()-2000;
+        final int startMonth = duration.getStartDate().getMonth()+1;
+        final int startDate = duration.getStartDate().getDate();
+        final int startYear = duration.getStartDate().getYear()-2000;
+
+        final StringBuilder startDateBuilder = new StringBuilder("&fdate=");
+        //System.out.println("DEBUG start date: "+startMonth+"/"+startDate+"/"+startYear);
+        //System.out.println("DEBUG end date: "+endMonth+"/"+endDate+"/"+endYear);
+        startDateBuilder.append(startMonth).append("%2F").append(startDate).append("%2F").append(startYear);
+        final StringBuilder endDateBuilder = new StringBuilder("&tdate=");
+        endDateBuilder.append(endMonth).append("%2F").append(endDate).append("%2F").append(endYear);
+
+        stringBuilder.append(startDateBuilder).append(endDateBuilder).append("&exp=xml");
+        final String location = stringBuilder.toString();
+
+        boolean success = false;
+
+        for (int retry = 0; retry < NUM_OF_RETRY; retry++) {
+            //System.out.println("DEBUG location "+location);
+            final String respond = org.yccheok.jstock.gui.Utils.getResponseBodyAsStringBasedOnProxyAuthOption(location);
+            //System.out.println("DEBUG respond "+respond);
+
+            if (respond == null) {
+                continue;
+            } else {
+                success = true;
+                break;
+            }
+        }
+
+        if (success == false) {
+            throw new StockHistoryNotFoundException(code.toString());
+        }
+    }
+
 
     @Override
     public Stock getStock(long timestamp) {

@@ -29,6 +29,7 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;*/
 import java.net.URLDecoder;
 import java.nio.charset.Charset;
+import java.util.regex.Pattern;
 import java.util.*;
 import org.apache.commons.httpclient.*;
 import org.apache.commons.logging.Log;
@@ -172,12 +173,75 @@ public class Utils {
         //System.out.println("DEBUG Country "+country.toString());
         if (country.toString() == "Vietnam") {
           return "http://priceboard.vietstock.vn/live-stock-quotes-hsx.aspx";
+          //return "http://finance.vietstock.vn/GetCompanyList.ashx?language=en";
         } else {
           return org.yccheok.jstock.network.Utils.getJStockStaticServer() + "stocks_information/" + country.toString().toLowerCase() + "/" + "stocks.csv";
         }
     }
 
     /* Hai support to get Vietnam stocks */
+    public static List<Stock> getVietStocks() {
+      List<Stock> stocks = new ArrayList<Stock>();
+      final Pattern colonQuotes = Pattern.compile(":\'");
+      final Pattern quoteCommas = Pattern.compile("\',");
+      final Pattern curlyCommas = Pattern.compile("\\},\\{");
+      /*final Pattern openBrackets = Pattern.compile("[");
+      final Pattern closeBrackets = Pattern.compile("]");*/
+      final String language = MainFrame.getInstance().getJStockOptions().getLanguage();
+      System.out.println("language "+language);
+      String url = "";
+      if ((language == null) || (language.equals("English"))) {
+        url = "http://finance.vietstock.vn/GetCompanyList.ashx?language=en";
+      } else {
+        url = "http://finance.vietstock.vn/GetCompanyList.ashx";
+      }
+      final String location = url;
+      System.out.println("location "+location);
+      final String respond = org.yccheok.jstock.gui.Utils.getResponseBodyAsStringBasedOnProxyAuthOption(location);
+      //System.out.println("respond "+respond);
+      final String[] strings = respond.split("\\[|\\]");
+      String string = strings[1];
+      string = curlyCommas.matcher(string).replaceAll("}\n{");
+      //System.out.println("string "+string);
+      final String[] infos = string.split("\n");
+      for (String info : infos) {
+        //System.out.println("info(0) "+info.substring(0,1));
+        if(info.substring(0,1).equals("{"))
+          info = info.substring(1);
+        if(info.substring(info.length()-1).equals("}"))
+          info = info.substring(0,info.length()-1);
+        //System.out.println("info "+info);
+        info = quoteCommas.matcher(info).replaceAll("\'\n");
+        String[] fields = info.split("\n");
+        String code = "";
+        String symbol = "";
+        String name = "";
+        Board board = Board.Unknown;
+        Industry industry = Industry.Unknown;
+        for (String field : fields) {
+          //System.out.println("field "+field);
+          field = colonQuotes.matcher(field).replaceAll("\n\'");
+          String[] columns = field.split("\n");
+          int size = columns.length;
+          if(size < 2)
+            continue;
+          if(columns[0].equals("code")) {
+            columns[1] = columns[1].substring(1,columns[1].length()-1);
+            code = columns[1];
+            //System.out.println("code "+code);
+          } else if (columns[0].equals("name")) {
+            columns[1] = columns[1].substring(1,columns[1].length()-1);
+            symbol = columns[1];
+            //System.out.println("symbol "+symbol);
+          } else {
+          }
+        }
+        final Stock stock = new Stock.Builder(Code.newInstance(code), Symbol.newInstance(symbol)).name(name).board(board).industry(industry).build();
+        stocks.add(stock);
+      }
+      //System.out.println("DEBUG stocks size "+stocks.size());
+      return stocks;
+    }
     public static List<Stock> getVietStocksFromCSVFile(File file) {
         List<Stock> stocks = new ArrayList<Stock>();
         InputStream is = null;
@@ -220,7 +284,7 @@ public class Utils {
                   index = line.indexOf("'");
                   index2 = line.indexOf("'", index+1);
                   String symbol = line.substring(index+1, index2);
-                  System.out.println("Get Symbol "+symbol);
+                  //System.out.println("Get Symbol "+symbol);
                   final String name = "";
                   final String _board = "Unknown";
                   final String _industry = "Unknown";
@@ -281,10 +345,7 @@ public class Utils {
      * @param file The CSV file
      * @return List of stocks carried by the CSV file.
      */
-    public static List<Stock> getStocksFromCSVFile(File file, boolean vstock_flag) {
-        if (vstock_flag == true) {
-          return getVietStocksFromCSVFile(file);
-        }
+    public static List<Stock> getStocksFromCSVFile(File file) {
         List<Stock> stocks = new ArrayList<Stock>();
         FileInputStream fileInputStream = null;
         InputStreamReader inputStreamReader = null;
@@ -389,13 +450,16 @@ public class Utils {
         assert(false == stocks.isEmpty());
         
         // Let's make our database since we get a list of good stocks.
+        //System.out.println("DEBUG CHECK1 stocks size "+stocks.size());
         StockInfoDatabase tmp_stock_info_database = new StockInfoDatabase(stocks);
         
         // StockNameDatabase is an optional item.
+        //System.out.println("DEBUG CHECK2 stocks size "+stocks.size());
         StockNameDatabase tmp_name_database = null;
         if (org.yccheok.jstock.engine.Utils.isNameImmutable(country)) {
             tmp_name_database = new StockNameDatabase(stocks);
         }
+        //System.out.println("DEBUG CHECK3 stocks size "+stocks.size());
         
         return Pair.create(tmp_stock_info_database, tmp_name_database);
     }
@@ -486,9 +550,97 @@ public class Utils {
         unitedKingdomIndices.add(Index.FTSE);
         unitedStateIndices.add(Index.DJI);        
         unitedStateIndices.add(Index.IXIC);        
-        vietnamIndices.add(Index.KLSE); //Only for test. Will replace KLSE by HOSE and HNX
+        vietnamIndices.add(Index.VNINDEX); // Hai support to get HOSE and HNX index for Vietnam
+        vietnamIndices.add(Index.HNXINDEX); // Hai support to get HOSE and HNX index for Vietnam
     }
 
+    private static final List<String> australiaBoards = new ArrayList<String>();
+    private static final List<String> austriaBoards = new ArrayList<String>();
+    private static final List<String> belgiumBoards = new ArrayList<String>();
+    private static final List<String> brazilBoards = new ArrayList<String>();
+    private static final List<String> canadaBoards = new ArrayList<String>();
+    private static final List<String> chinaBoards = new ArrayList<String>();
+    private static final List<String> denmarkBoards = new ArrayList<String>();
+    private static final List<String> franceBoards = new ArrayList<String>();
+    private static final List<String> germanyBoards = new ArrayList<String>();
+    private static final List<String> hongkongBoards = new ArrayList<String>();
+    private static final List<String> indiaBoards = new ArrayList<String>();
+    private static final List<String> indonesiaBoards = new ArrayList<String>();
+    private static final List<String> israelBoards = new ArrayList<String>();
+    private static final List<String> italyBoards = new ArrayList<String>();
+    private static final List<String> koreaBoards = new ArrayList<String>();
+    private static final List<String> malaysiaBoards = new ArrayList<String>();
+    private static final List<String> netherlandsBoards = new ArrayList<String>();
+    private static final List<String> newZealandBoards = new ArrayList<String>();
+    private static final List<String> norwayBoards = new ArrayList<String>();
+    private static final List<String> portugalBoards = new ArrayList<String>();
+    private static final List<String> singaporeBoards = new ArrayList<String>();
+    private static final List<String> spainBoards = new ArrayList<String>();
+    private static final List<String> swedenBoards = new ArrayList<String>();
+    private static final List<String> switzerlandBoards = new ArrayList<String>();
+    private static final List<String> taiwanBoards = new ArrayList<String>();
+    private static final List<String> unitedKingdomBoards = new ArrayList<String>();
+    private static final List<String> unitedStateBoards = new ArrayList<String>();
+    private static final List<String> vietnamBoards = new ArrayList<String>();
+    
+    static
+    {
+        austriaBoards.add("Vienna");
+        australiaBoards.add("ASX");
+        australiaBoards.add("Sydney");
+        belgiumBoards.add("Brussels");
+        brazilBoards.add("BM&F BOVESPA");
+        canadaBoards.add("Toronto");
+        chinaBoards.add("SSE");
+        denmarkBoards.add("Copenhagen");
+        franceBoards.add("Paris");  
+        germanyBoards.add("Xetra");
+        germanyBoards.add("XETRA");
+        germanyBoards.add("Munich");
+        germanyBoards.add("Stuttgart");
+        germanyBoards.add("Berlin");
+        germanyBoards.add("Hamburg");
+        germanyBoards.add("Dusseldorf");
+        germanyBoards.add("Frankfurt");
+        germanyBoards.add("Hannover");
+        hongkongBoards.add("HKSE");
+        indiaBoards.add("Bombay");
+        indiaBoards.add("NSE");
+        indonesiaBoards.add("Jakarta");
+        israelBoards.add("Tel Aviv Stock Exchange");
+        italyBoards.add("Milan");
+        koreaBoards.add("KSE");
+        koreaBoards.add("KOSDAQ");
+        malaysiaBoards.add("Kuala Lumpur");
+        malaysiaBoards.add("Mesdaq");
+        netherlandsBoards.add("Amsterdam");
+        newZealandBoards.add("NZ Stock Market");
+        newZealandBoards.add("NZ Debt Market");
+        newZealandBoards.add("NZ Alternative Market");
+        norwayBoards.add("Oslo");
+        portugalBoards.add("ENX");
+        portugalBoards.add("Lisbon");
+        singaporeBoards.add("SES");
+        spainBoards.add("Madrid");
+        spainBoards.add("MCE");
+        spainBoards.add("Mercado Continuo");
+        swedenBoards.add("Stockholm");
+        switzerlandBoards.add("VTX");
+        switzerlandBoards.add("Virt-X");
+        switzerlandBoards.add("Switzerland");
+        taiwanBoards.add("Taiwan");
+        unitedKingdomBoards.add("FSI");
+        unitedKingdomBoards.add("London");
+        unitedStateBoards.add("NasdaqSC");        
+        unitedStateBoards.add("DJI");        
+        unitedStateBoards.add("NasdaqNM");        
+        unitedStateBoards.add("NYSE");        
+        unitedStateBoards.add("Nasdaq");        
+        unitedStateBoards.add("AMEX");        
+        unitedStateBoards.add("Pink Sheet");        
+        vietnamBoards.add("HOSE"); // Hai support to get HOSE and HNX index for Vietnam
+        vietnamBoards.add("HNX"); // Hai support to get HOSE and HNX index for Vietnam
+    }
     /**
      * Returns code in Google's format.
      * 
@@ -782,6 +934,69 @@ public class Utils {
                 return java.util.Collections.unmodifiableList(Utils.unitedStateIndices);
             case Vietnam:
                 return java.util.Collections.unmodifiableList(Utils.vietnamIndices);
+        }
+        
+        return java.util.Collections.emptyList();
+    }
+    public static List<String> getBoards(Country country) {
+        switch (country)
+        {
+            case Australia:
+                return java.util.Collections.unmodifiableList(Utils.australiaBoards);
+            case Austria:
+                return java.util.Collections.unmodifiableList(Utils.austriaBoards);
+            case Belgium:
+                return java.util.Collections.unmodifiableList(Utils.belgiumBoards);
+            case Brazil:
+                return java.util.Collections.unmodifiableList(Utils.brazilBoards);
+            case Canada:
+                return java.util.Collections.unmodifiableList(Utils.canadaBoards);
+            case China:
+                return java.util.Collections.unmodifiableList(Utils.chinaBoards);
+            case Denmark:
+                return java.util.Collections.unmodifiableList(Utils.denmarkBoards);
+            case France:
+                return java.util.Collections.unmodifiableList(Utils.franceBoards);
+            case Germany:
+                return java.util.Collections.unmodifiableList(Utils.germanyBoards);
+            case HongKong:
+                return java.util.Collections.unmodifiableList(Utils.hongkongBoards);
+            case India:
+                return java.util.Collections.unmodifiableList(Utils.indiaBoards);
+            case Indonesia:
+                return java.util.Collections.unmodifiableList(Utils.indonesiaBoards);
+            case Israel:
+                return java.util.Collections.unmodifiableList(Utils.israelBoards);
+            case Italy:
+                return java.util.Collections.unmodifiableList(Utils.italyBoards);
+            case Korea:
+                return java.util.Collections.unmodifiableList(Utils.koreaBoards);
+            case Malaysia:
+                return java.util.Collections.unmodifiableList(Utils.malaysiaBoards);
+            case Netherlands:
+                return java.util.Collections.unmodifiableList(Utils.netherlandsBoards);
+            case NewZealand:
+                return java.util.Collections.unmodifiableList(Utils.newZealandBoards);
+            case Norway:
+                return java.util.Collections.unmodifiableList(Utils.norwayBoards);
+            case Portugal:
+                return java.util.Collections.unmodifiableList(Utils.portugalBoards);
+            case Singapore:
+                return java.util.Collections.unmodifiableList(Utils.singaporeBoards);
+            case Spain:
+                return java.util.Collections.unmodifiableList(Utils.spainBoards);
+            case Sweden:
+                return java.util.Collections.unmodifiableList(Utils.swedenBoards);
+            case Switzerland:
+                return java.util.Collections.unmodifiableList(Utils.switzerlandBoards);
+            case Taiwan:
+                return java.util.Collections.unmodifiableList(Utils.taiwanBoards);
+            case UnitedKingdom:
+                return java.util.Collections.unmodifiableList(Utils.unitedKingdomBoards);                
+            case UnitedState:
+                return java.util.Collections.unmodifiableList(Utils.unitedStateBoards);
+            case Vietnam:
+                return java.util.Collections.unmodifiableList(Utils.vietnamBoards);
         }
         
         return java.util.Collections.emptyList();

@@ -151,7 +151,8 @@ public class VietStockFormat implements StockFormat {
           Code code = null;
           Symbol symbol = null;
           String name = null;
-          Stock.Board board = null;
+          //Stock.Board board = null;
+          Stock.Board board = Stock.Board.HOSE;
           Stock.Industry industry = null;
           double prevPrice = 0.0;
           double openPrice = 0.0;
@@ -205,6 +206,18 @@ public class VietStockFormat implements StockFormat {
             if(columns[0].equals("\"StockCode\"")) {
               //System.out.println("DEBUG StockCode "+columns[1].substring(1,columns[1].length()-2));
               code = Code.newInstance(columns[1].substring(1,columns[1].length()-1));
+            } else if (columns[0].equals("\"CatID\"")) {
+              int id = 0;
+              id = Integer.parseInt(columns[1]);
+              if(id == 1) {
+                code = Code.newInstance("^VNINDEX");
+                name = "VN Index";
+                symbol = Symbol.newInstance(name.toString());
+              } else if (id == 2) {
+                code = Code.newInstance("^HNXINDEX");
+                name = "HNX Index";
+                symbol = Symbol.newInstance(name.toString());
+              }
             }
             if(columns[0].equals("\"URL\"")) {
               //System.out.println("DEBUG StockCode "+columns[1].substring(1,columns[1].length()-2));
@@ -229,10 +242,12 @@ public class VietStockFormat implements StockFormat {
             if(columns[0].equals("\"PriorClosePrice\"")) //Previous close
               //prevPrice = Double.parseDouble(columns[1].substring(1,columns[1].length()-1));
               prevPrice = Double.parseDouble(columns[1]);
-            if(columns[0].equals("\"OpenPrice\"")) //Day's open
+            if(columns[0].equals("\"Change\"")) //Change from Previous close 
+              changePrice = Double.parseDouble(columns[1]);
+            if(columns[0].equals("\"OpenPrice\"") || columns[0].equals("\"OpenIndex\"")) //Day's open
               //openPrice = Double.parseDouble(columns[1].substring(1,columns[1].length()-1));
               openPrice = Double.parseDouble(columns[1]);
-            if(columns[0].equals("\"ClosePrice\"")) //Day's close = Last price
+            if(columns[0].equals("\"ClosePrice\"") || columns[0].equals("\"CloseIndex\"")) //Day's close = Last price
               //lastPrice = Double.parseDouble(columns[1].substring(1,columns[1].length()-1));
               lastPrice = Double.parseDouble(columns[1]);
             if(columns[0].equals("\"Highest\"")) //Day's high
@@ -251,6 +266,9 @@ public class VietStockFormat implements StockFormat {
               //changePricePercentage = Double.parseDouble(columns[1].substring(1,columns[1].length()-1));
               changePricePercentage = Double.parseDouble(columns[1]);
             //Dont have last volume
+          }
+          if (prevPrice == 0) {
+            prevPrice = lastPrice - changePrice;
           }
           //System.out.println("DEBUG StockCode "+code.toString()+", prevPrice "+prevPrice+", highPrice "+highPrice);
           if (timestamp == 0) timestamp = System.currentTimeMillis();
@@ -288,206 +306,6 @@ public class VietStockFormat implements StockFormat {
           stocks.add(stock);            
         }                         
         //System.out.println("DEBUG CHECK StockCode "+stocks.get(0).code.toString()+", symbol "+stocks.get(0).symbol.toString()+", prevPrice "+stocks.get(0).getPrevPrice()+", highPrice "+stocks.get(0).getHighPrice());
-        
-        /*for (String string : strings) {
-            // ",123,456,"   -> ",123456,"
-            // ","abc,def"," -> ","abcdef","
-            // Please refer http://stackoverflow.com/questions/15692458/different-regular-expression-result-in-java-se-and-android-platform for more details.
-            //
-            // The idea is : If a comma doesn't have double quote on its left AND on its right, replace it with empty string.
-            // http://www.regular-expressions.info/lookaround.html
-            final String stringDigitWithoutComma = commaNotBetweenQuotes.matcher(string).replaceAll("");
-
-            // Do not use String.split although it might be faster.
-            // This is because after stringDigitWithoutComma regular expression, we have an edge case
-            //
-            // ","abcdef,","   -> ","abcdef","  <-- This is our expectation
-            // ","abcdef,","   -> ","abcdef,"," <-- This is what we get
-            //
-            // I think it is difficult to solve this through regular expression.
-            // We will use CSVParser to handle this.
-            final CSVParser csvParser = new CSVParser();
-            String[] fields;
-            try {
-                fields = csvParser.parseLine(stringDigitWithoutComma);
-            } catch (IOException ex) {
-                log.error(null, ex);
-                continue;
-            }
-            final int length = fields.length;
-            
-            Code code = null;
-            Symbol symbol = null;
-            String name = null;
-            Stock.Board board = null;
-            Stock.Industry industry = null;
-            double prevPrice = 0.0;
-            double openPrice = 0.0;
-            double lastPrice = 0.0;    
-            double highPrice = 0.0;  
-            double lowPrice = 0.0;
-            // TODO: CRITICAL LONG BUG REVISED NEEDED.
-            long volume = 0;
-            double changePrice = 0.0;
-            double changePricePercentage = 0.0;
-            int lastVolume = 0;    
-            double buyPrice = 0.0;
-            int buyQuantity = 0;    
-            double sellPrice = 0.0;
-            int sellQuantity = 0; 
-            double secondBuyPrice = 0.0;
-            int secondBuyQuantity = 0;
-            double secondSellPrice = 0.0;
-            int secondSellQuantity = 0;
-            double thirdBuyPrice = 0.0;
-            int thirdBuyQuantity = 0;
-            double thirdSellPrice = 0.0;
-            int thirdSellQuantity = 0;
-            long timestamp = 0;
-            
-            do {
-                if (length < 1) break; code = Code.newInstance(quotePattern.matcher(fields[0]).replaceAll("").trim());
-                
-                if (length < 2) break; name = quotePattern.matcher(fields[1]).replaceAll("").trim();
-
-                // We use name as symbol, to make it more readable.
-                symbol = Symbol.newInstance(name.toString());
-
-                if (length < 3) break;
-                
-                try {
-                    board = Stock.Board.valueOf(quotePattern.matcher(fields[2]).replaceAll("").trim());
-                }
-                catch (java.lang.IllegalArgumentException exp) {
-                    board = Stock.Board.Unknown;
-                }
-                
-                industry = Stock.Industry.Unknown;
-                
-                if (length < 5) break;
-                try { prevPrice = Double.parseDouble(fields[4]); } catch (NumberFormatException exp) {}
-                
-                if (length < 7) break;
-                try { openPrice = Double.parseDouble(fields[6]); } catch (NumberFormatException exp) {}
-                
-                if (length < 9) break;
-                try { lastPrice = Double.parseDouble(fields[8]); } catch (NumberFormatException exp) {}
-
-                if (length < 11) break;
-                try { highPrice = Double.parseDouble(fields[10]); } catch (NumberFormatException exp) {}
-
-                if (length < 13) break;
-                try { lowPrice = Double.parseDouble(fields[12]); } catch (NumberFormatException exp) {}
-
-                if (length < 15) break;
-                // TODO: CRITICAL LONG BUG REVISED NEEDED.
-                try { volume = Long.parseLong(fields[14]); } catch (NumberFormatException exp) {}
-
-                if (length < 17) break;
-                try { changePrice = Double.parseDouble(quotePattern.matcher(fields[16]).replaceAll("").trim()); } catch (NumberFormatException exp) {}
-
-                if (length < 19) break;
-                String _changePricePercentage = quotePattern.matcher(fields[18]).replaceAll("");
-                _changePricePercentage = percentagePattern.matcher(_changePricePercentage).replaceAll("");
-                try { changePricePercentage = Double.parseDouble(_changePricePercentage); } catch (NumberFormatException exp) {}
-
-                if (length < 21) break;
-                try { lastVolume = Integer.parseInt(fields[20]); } catch (NumberFormatException exp) {}
-                
-                if (length < 23) break;
-                try { buyPrice = Double.parseDouble(fields[22]); } catch (NumberFormatException exp) {}
-                
-                if (length < 25) break;
-                try { buyQuantity = Integer.parseInt(fields[24]); } catch (NumberFormatException exp) {}
-                
-                if (length < 27) break;
-                try { sellPrice = Double.parseDouble(fields[26]); } catch (NumberFormatException exp) {}
-                
-                if (length < 29) break;
-                try { sellQuantity = Integer.parseInt(fields[28]); } catch (NumberFormatException exp) {}
-                
-                if (length < 32) break;
-                java.text.SimpleDateFormat dateFormat = new java.text.SimpleDateFormat("MM/dd/yyyy hh:mmaa");
-                String date_and_time = quotePattern.matcher(fields[30]).replaceAll("").trim() + " " + quotePattern.matcher(fields[31]).replaceAll("").trim();
-                java.util.Date serverDate;
-                try {
-                    serverDate = dateFormat.parse(date_and_time);
-                    timestamp = serverDate.getTime();
-                } catch (ParseException exp) {
-                    // Most of the time, we just obtain "N/A"
-                    // log.error(fields[23] + ", " + fields[24] + ", " + data_and_time, exp);
-                }
-                
-                break;
-            } while(true);
-            
-            if (code == null || symbol == null || name == null || board == null || industry == null) {
-                continue;
-            }
-
-            // This function is used to resolve, random corrupted data returned from
-            // Yahoo! server. Once a while, we will receive complain from users as in
-            // http://sourceforge.net/projects/jstock/forums/forum/723855/topic/4611584
-            // http://sourceforge.net/projects/jstock/forums/forum/723855/topic/4647070
-            // Note that, this is a very hacking way, and not reliable at all!
-            if (isCorruptedData(lastPrice) || isTooOldTimestamp(timestamp)) {
-                continue;
-            }
-
-            if (length > 28) {
-                if (
-                    fields[28].equalsIgnoreCase("N/A") &&
-                    fields[26].equalsIgnoreCase("N/A") &&
-                    org.yccheok.jstock.portfolio.Utils.essentiallyEqual(lastPrice, 0.0) &&
-                    fields[24].equalsIgnoreCase("N/A") &&
-                    fields[22].equalsIgnoreCase("N/A") &&
-                    fields[20].equalsIgnoreCase("N/A") &&
-                    fields[18].equalsIgnoreCase("N/A") &&
-                    fields[16].equalsIgnoreCase("N/A") &&
-                    fields[14].equalsIgnoreCase("N/A") &&
-                    fields[12].equalsIgnoreCase("N/A") &&
-                    fields[10].equalsIgnoreCase("N/A") &&
-                    fields[6].equalsIgnoreCase("N/A") &&
-                    fields[4].equalsIgnoreCase("N/A")
-                ) {
-                    continue;
-                }
-            }
-
-            if (timestamp == 0) timestamp = System.currentTimeMillis();
-            
-            Stock stock = new Stock(
-                    code,
-                    symbol,
-                    name,
-                    board,
-                    industry,
-                    prevPrice,
-                    openPrice,
-                    lastPrice,
-                    highPrice,
-                    lowPrice,
-                    volume,
-                    changePrice,
-                    changePricePercentage,
-                    lastVolume,
-                    buyPrice,
-                    buyQuantity,
-                    sellPrice,
-                    sellQuantity,
-                    secondBuyPrice,
-                    secondBuyQuantity,
-                    secondSellPrice,
-                    secondSellQuantity,
-                    thirdBuyPrice,
-                    thirdBuyQuantity,
-                    thirdSellPrice,
-                    thirdSellQuantity,
-                    timestamp                                        
-                    );
-
-            stocks.add(stock);            
-        }*/
         
         return stocks;
     }

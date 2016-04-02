@@ -75,7 +75,7 @@ public class VietStockServerFactory implements StockServerFactory {
     }
     
     private final StockServer stockServer = new VietStockServer();
-    private final MarketServer marketServer = new YahooMarketServer();
+    private final MarketServer marketServer = new VietMarketServer();
     private final DividendServer dividendServer;
     
     private static final Log log = LogFactory.getLog(VietStockServerFactory.class);

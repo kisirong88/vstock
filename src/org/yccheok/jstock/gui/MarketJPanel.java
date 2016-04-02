@@ -21,11 +21,13 @@ package org.yccheok.jstock.gui;
 
 import java.awt.Color;
 import java.awt.Cursor;
+import java.awt.Checkbox;
 import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.swing.JLabel;
+import javax.swing.JCheckBox;
 import org.yccheok.jstock.engine.Code;
 import org.yccheok.jstock.engine.Country;
 import org.yccheok.jstock.engine.Index;
@@ -57,10 +59,22 @@ public class MarketJPanel extends javax.swing.JPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        //horiPanel = new javax.swing.JPanel();
+        //vertPanel1 = new javax.swing.JPanel();
+        //vertPanel2 = new javax.swing.JPanel();
         leftPanel = new javax.swing.JPanel();
+        leftPanel2 = new javax.swing.JPanel();
 
         setLayout(new java.awt.BorderLayout());
-        add(leftPanel, java.awt.BorderLayout.WEST);
+        //add(horiPanel, java.awt.BorderLayout.WEST);
+        //add(vertPanel1, java.awt.BorderLayout.NORTH);
+        //add(vertPanel2);
+        //vertPanel1.add(leftPanel, java.awt.BorderLayout.NORTH);
+        //vertPanel2.add(leftPanel2, java.awt.BorderLayout.NORTH);
+        //vertPanel1.add(leftPanel, java.awt.BorderLayout.WEST);
+        //vertPanel2.add(leftPanel2, java.awt.BorderLayout.WEST);
+        add(leftPanel, java.awt.BorderLayout.NORTH);
+        add(leftPanel2);
     }// </editor-fold>//GEN-END:initComponents
 
     public void update(List<Market> markets) {
@@ -88,8 +102,10 @@ public class MarketJPanel extends javax.swing.JPanel {
     
     private void initAccordingToCountry(Country country) {
         List<Index> indices = org.yccheok.jstock.engine.Utils.getStockIndices(country);
+        List<String> boards = org.yccheok.jstock.engine.Utils.getBoards(country);
         for (final Index index : indices) {
             JLabel name = new JLabel(index.toString() + " : ");
+            //name.setVerticalAlignment(JLabel.BOTTOM);
             leftPanel.add(name);
             JLabel value = new JLabel();
             value.setName(index.name());
@@ -99,6 +115,7 @@ public class MarketJPanel extends javax.swing.JPanel {
 
             // Install mouse handler.
             name.addMouseListener(new java.awt.event.MouseAdapter() {
+            //value.addMouseListener(new java.awt.event.MouseAdapter() {
                 @Override
                 public void mouseExited(java.awt.event.MouseEvent evt) {
                     MarketJPanel.this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
@@ -118,6 +135,17 @@ public class MarketJPanel extends javax.swing.JPanel {
                 }
             });
         }
+        for (final String board : boards) {
+            JCheckBox box = new JCheckBox(board);
+            box.setSelected(true);
+            leftPanel2.add(box);
+            box.addItemListener(new java.awt.event.ItemListener() {
+                public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                    System.out.println("DEBUG check box board is changed");
+                    boardCheckBoxItemStateChanged(evt);
+                }
+            });
+        }
     }
 
     private String getValueLabel() {
@@ -131,11 +159,45 @@ public class MarketJPanel extends javax.swing.JPanel {
         return this.country;
     }
     
+    /*private class BoardCheckBox extends javax.swing.JCheckBox {
+      public BoardCheckBox(String board) {
+          this.board = board;
+      }
+      public String getBoard() {
+          return this.board;
+      }
+      private String board;
+    }*/
+    private void boardCheckBoxItemStateChanged(java.awt.event.ItemEvent evt) {
+        //BoardCheckBox me = (BoardCheckBox)evt.getSource();
+        JCheckBox me = (JCheckBox) evt.getSource();
+        /*JCheckBox box = (BoardCheckBox)evt.getSource();
+        BoardCheckBox me = (BoardCheckBox)box;*/
+
+        if(!me.isSelected()) {
+          final MainFrame m = MainFrame.getInstance();
+          System.out.println("DEBUG Deactivate board "+me.getText());
+          m.deactivateBoard(me.getText());
+          System.out.println("DEBUG start newFilter");
+          m.newFilter();
+        } else {
+          final MainFrame m = MainFrame.getInstance();
+          System.out.println("DEBUG Activate board "+me.getText());
+          m.activateBoard(me.getText());
+          System.out.println("DEBUG start newFilter");
+          m.newFilter();
+        }
+    }
+
     private Country country = null;
     private Map<String, JLabel> map = new HashMap<String, JLabel>();
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    //javax.swing.JPanel horiPanel;
+    //javax.swing.JPanel vertPanel1;
+    //javax.swing.JPanel vertPanel2;
     javax.swing.JPanel leftPanel;
+    javax.swing.JPanel leftPanel2;
     // End of variables declaration//GEN-END:variables
 
 }
