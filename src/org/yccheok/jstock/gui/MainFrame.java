@@ -666,7 +666,9 @@ public class MainFrame extends javax.swing.JFrame {
         jMenu12.setText(bundle.getString("MainFrame_Language")); // NOI18N
 
         buttonGroup4.add(jRadioButtonMenuItem7);
-        jRadioButtonMenuItem7.setSelected(true);
+        if ((this.jStockOptions.getLanguage() == null) || (this.jStockOptions.getLanguage().equals("English"))) {
+          jRadioButtonMenuItem7.setSelected(true);
+        }
         jRadioButtonMenuItem7.setText("English");
         jRadioButtonMenuItem7.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -676,6 +678,9 @@ public class MainFrame extends javax.swing.JFrame {
         jMenu12.add(jRadioButtonMenuItem7);
 
         buttonGroup4.add(jRadioButtonMenuItem8);
+        if ((this.jStockOptions.getLanguage() != null) && (this.jStockOptions.getLanguage().equals("Tiếng Việt"))) {
+          jRadioButtonMenuItem8.setSelected(true);
+        }
         jRadioButtonMenuItem8.setText("Tiếng Việt");
         jRadioButtonMenuItem8.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
