@@ -196,7 +196,7 @@ public class Utils {
         url = "http://finance.vietstock.vn/GetCompanyList.ashx";
       }
       final String location = url;
-      System.out.println("location "+location);
+      System.out.println("list company location "+location);
       final String respond = org.yccheok.jstock.gui.Utils.getResponseBodyAsStringBasedOnProxyAuthOption(location);
       //System.out.println("respond "+respond);
       final String[] strings = respond.split("\\[|\\]");
@@ -241,6 +241,49 @@ public class Utils {
       }
       //System.out.println("DEBUG stocks size "+stocks.size());
       return stocks;
+    }
+    public static void getVietHistoryStocks(List<Stock> stocks) {
+      for (Stock stock : stocks) {
+        final Code code = stock.code;
+        //Get history database
+        String symbol = "";
+        try {
+            symbol = java.net.URLEncoder.encode(code.toString(), "UTF-8");
+        } catch (UnsupportedEncodingException ex) {
+        }       
+        final String historyFile = org.yccheok.jstock.gui.Utils.getHistoryDirectory() + File.separator + symbol + ".xml";
+        System.out.println("DEBUG historyFile "+historyFile);
+        final boolean isExist = org.yccheok.jstock.gui.Utils.isFileOrDirectoryExist(historyFile);
+        final StringBuilder stringBuilder = new StringBuilder("http://finance.vietstock.vn/Controls/TradingResult/Matching_Hose_Result.aspx?scode=");
+        stringBuilder.append(symbol);
+        final StringBuilder columnBuilder = new StringBuilder("&lcol=TKLGD%2CTGTGD%2CCN%2CTN%2CGD1%2CGD2%2CGD3%2C");
+        stringBuilder.append(columnBuilder);
+        final StringBuilder formatBuilder = new StringBuilder("&sort=Time&dir=desc&page=1&psize=0");
+        stringBuilder.append(formatBuilder);
+        final Duration duration =  Duration.getTodayDurationByYears(4);
+        final int endMonth = duration.getEndDate().getMonth()+1; //Hai fix bug, havent found root cause
+        final int endDate = duration.getEndDate().getDate();
+        final int endYear = duration.getEndDate().getYear()-2000;
+        final int startMonth = duration.getStartDate().getMonth()+1;
+        final int startDate = duration.getStartDate().getDate();
+        final int startYear = duration.getStartDate().getYear()-2000;
+        final StringBuilder startDateBuilder = new StringBuilder("&fdate=");
+        startDateBuilder.append(startMonth).append("%2F").append(startDate).append("%2F").append(startYear);
+        final StringBuilder endDateBuilder = new StringBuilder("&tdate=");
+        endDateBuilder.append(endMonth).append("%2F").append(endDate).append("%2F").append(endYear);
+        stringBuilder.append(startDateBuilder).append(endDateBuilder).append("&exp=xml");
+        final String historyLocation = stringBuilder.toString();
+        System.out.println("DEBUG download history location "+historyLocation);
+        final String historyRespond = org.yccheok.jstock.gui.Utils.getResponseBodyAsStringBasedOnProxyAuthOption(historyLocation);
+        try {
+            //PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(historyFile, true)));
+            PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(historyFile)));
+            out.println(historyRespond);
+            out.close();
+        } catch (IOException e) {
+          //exception handling left as an exercise for the reader
+        }
+      }
     }
     public static List<Stock> getVietStocksFromCSVFile(File file) {
         List<Stock> stocks = new ArrayList<Stock>();

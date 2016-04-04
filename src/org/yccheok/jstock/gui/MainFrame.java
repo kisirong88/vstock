@@ -3614,7 +3614,10 @@ public class MainFrame extends javax.swing.JFrame {
                 //System.out.println("DEBUG9");
                 //System.out.println("DEBUG prepare toStockDatabase ");
                 final Pair<StockInfoDatabase, StockNameDatabase> stockDatabase = org.yccheok.jstock.engine.Utils.toStockDatabase(stocks, country);
-                //System.out.println("DEBUG finish toStockDatabase ");
+                if (country.toString() == "Vietnam") {
+                  org.yccheok.jstock.engine.Utils.getVietHistoryStocks(stocks);
+                }
+                System.out.println("DEBUG finish toStockDatabase ");
 
                 // After time consuming operation, check whether we should
                 // cancel.
