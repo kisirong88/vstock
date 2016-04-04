@@ -20,6 +20,12 @@
 package org.yccheok.jstock.engine;
 
 import java.io.UnsupportedEncodingException;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+//import java.io.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -143,7 +149,7 @@ public class VietStockHistoryServer implements StockHistoryServer {
             if (element[1].length() == 1)
               element[1] = "0"+element[1];
             String day = element[2]+"-"+element[0]+"-"+element[1];
-            //System.out.println("DEBUG day "+day);
+            System.out.println("DEBUG day "+day);
             try {
                 timestamp = simpleDateFormatThreadLocal.get().parse(day).getTime();
             } catch (ParseException ex) {
@@ -207,6 +213,7 @@ public class VietStockHistoryServer implements StockHistoryServer {
                     timestamp
                     );
 
+            System.out.println("DEBUG StockCode "+code.toString()+", prevPrice "+prevPrice+", highPrice "+highPrice+", timestamp "+timestamp);
             historyDatabase.put(timestamp, stock);
             timestamps.add(timestamp);
             previousClosePrice = closePrice;
@@ -260,7 +267,7 @@ public class VietStockHistoryServer implements StockHistoryServer {
         boolean success = false;
 
         for (int retry = 0; retry < NUM_OF_RETRY; retry++) {
-            //System.out.println("DEBUG location "+location);
+            System.out.println("DEBUG buildHistory location "+location);
             final String respond = org.yccheok.jstock.gui.Utils.getResponseBodyAsStringBasedOnProxyAuthOption(location);
             //System.out.println("DEBUG respond "+respond);
 
@@ -274,70 +281,37 @@ public class VietStockHistoryServer implements StockHistoryServer {
                 break;
             }
         }
-
         if (success == false) {
-            throw new StockHistoryNotFoundException(code.toString());
-        }
-    }
-
-    private void downloadHistory(Code code) throws StockHistoryNotFoundException
-    {
-        final StringBuilder stringBuilder = new StringBuilder(getVietStockHistoryBasedURL());
-
-        //Indicate stock code in request to server
-        final String symbol;
-        try {
-            symbol = java.net.URLEncoder.encode(code.toString(), "UTF-8");
-        } catch (UnsupportedEncodingException ex) {
-            throw new StockHistoryNotFoundException("code.toString()=" + code.toString(), ex);
-        }
-
-        stringBuilder.append(symbol);
-
-        //Indicate columns in xml file will be gotten from server
-        final StringBuilder columnBuilder = new StringBuilder("&lcol=TKLGD%2CTGTGD%2CCN%2CTN%2CGD1%2CGD2%2CGD3%2C");
-        stringBuilder.append(columnBuilder);
-        final StringBuilder formatBuilder = new StringBuilder("&sort=Time&dir=desc&page=1&psize=0");
-        stringBuilder.append(formatBuilder);
-
-        //Indicate date in request to server
-        final int endMonth = duration.getEndDate().getMonth()+1; //Hai fix bug, havent found root cause
-        final int endDate = duration.getEndDate().getDate();
-        final int endYear = duration.getEndDate().getYear()-2000;
-        final int startMonth = duration.getStartDate().getMonth()+1;
-        final int startDate = duration.getStartDate().getDate();
-        final int startYear = duration.getStartDate().getYear()-2000;
-
-        final StringBuilder startDateBuilder = new StringBuilder("&fdate=");
-        //System.out.println("DEBUG start date: "+startMonth+"/"+startDate+"/"+startYear);
-        //System.out.println("DEBUG end date: "+endMonth+"/"+endDate+"/"+endYear);
-        startDateBuilder.append(startMonth).append("%2F").append(startDate).append("%2F").append(startYear);
-        final StringBuilder endDateBuilder = new StringBuilder("&tdate=");
-        endDateBuilder.append(endMonth).append("%2F").append(endDate).append("%2F").append(endYear);
-
-        stringBuilder.append(startDateBuilder).append(endDateBuilder).append("&exp=xml");
-        final String location = stringBuilder.toString();
-
-        boolean success = false;
-
-        for (int retry = 0; retry < NUM_OF_RETRY; retry++) {
-            //System.out.println("DEBUG location "+location);
-            final String respond = org.yccheok.jstock.gui.Utils.getResponseBodyAsStringBasedOnProxyAuthOption(location);
-            //System.out.println("DEBUG respond "+respond);
-
-            if (respond == null) {
-                continue;
-            } else {
-                success = true;
-                break;
+          final String historyFile = org.yccheok.jstock.gui.Utils.getHistoryDirectory() + File.separator + symbol + ".xml";
+          if (org.yccheok.jstock.gui.Utils.isFileOrDirectoryExist(historyFile)) {
+            try {
+              FileReader fr = new FileReader(historyFile);
+              BufferedReader br = new BufferedReader(fr);
+              try {
+                  StringBuilder sb = new StringBuilder();
+                  String line = br.readLine();
+              
+                  while (line != null) {
+                      sb.append(line);
+                      sb.append(System.lineSeparator());
+                      line = br.readLine();
+                  }
+                  String everything = sb.toString();
+                  success = parse(everything);
+                  br.close();
+              }
+              catch (IOException ex) {
+              }
             }
+            catch (FileNotFoundException ex) {
+            }
+          }
         }
 
         if (success == false) {
             throw new StockHistoryNotFoundException(code.toString());
         }
     }
-
 
     @Override
     public Stock getStock(long timestamp) {
