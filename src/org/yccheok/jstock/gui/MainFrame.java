@@ -661,7 +661,8 @@ public class MainFrame extends javax.swing.JFrame {
         });
         jMenu10.add(jRadioButtonMenuItem5);
 
-        jMenuBar2.add(jMenu10);
+        // Hai remove old language menu
+        //jMenuBar2.add(jMenu10);
 
         jMenu12.setText(bundle.getString("MainFrame_Language")); // NOI18N
 
@@ -3615,7 +3616,7 @@ public class MainFrame extends javax.swing.JFrame {
                 //System.out.println("DEBUG prepare toStockDatabase ");
                 final Pair<StockInfoDatabase, StockNameDatabase> stockDatabase = org.yccheok.jstock.engine.Utils.toStockDatabase(stocks, country);
                 if (country.toString() == "Vietnam") {
-                  org.yccheok.jstock.engine.Utils.getVietHistoryStocks(stocks);
+                  //org.yccheok.jstock.engine.Utils.getVietHistoryStocks(stocks);
                 }
                 System.out.println("DEBUG finish toStockDatabase ");
 
