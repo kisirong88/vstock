@@ -101,6 +101,74 @@ public class IndicatorDefaultDrawing extends org.jhotdraw.draw.DefaultDrawing {
         inputFormat.read(jHotdrawFile, this);
 
         OperatorIndicator operatorIndicator = org.yccheok.jstock.gui.Utils.fromXML(OperatorIndicator.class, xStreamFile);
+        //System.out.println("DEBUG operatorIndicatorFilename "+operatorIndicatorFilename);
+        if (operatorIndicatorFilename.indexOf("MACD Down Trend Signal.xml") >= 0) {
+          System.out.println("DEBUG operatorIndicatorFilename "+operatorIndicatorFilename);
+          //Constructor of operators will create automatically output connectors pointing to these operator
+          //Constructor of operators will create automatically input connectors pointing to these operator
+          //But constructor of operators don't create connections
+          StockRelativeHistoryOperator stockRelativeHistory1Operator = new StockRelativeHistoryOperator();
+          stockRelativeHistory1Operator.setFunction(StockRelativeHistoryOperator.Function.EMA);
+          stockRelativeHistory1Operator.setType(StockRelativeHistoryOperator.Type.LastPrice);
+          stockRelativeHistory1Operator.setDay(12);
+          StockRelativeHistoryOperator stockRelativeHistory2Operator = new StockRelativeHistoryOperator();
+          stockRelativeHistory2Operator.setFunction(StockRelativeHistoryOperator.Function.EMA);
+          stockRelativeHistory2Operator.setType(StockRelativeHistoryOperator.Type.LastPrice);
+          stockRelativeHistory2Operator.setDay(26);
+          ArithmeticOperator arithmeticOperator = new ArithmeticOperator();
+          arithmeticOperator.setArithmetic(ArithmeticOperator.Arithmetic.Subtraction);
+          DoubleConstantOperator doubleConstantOperator = new DoubleConstantOperator();
+          //Create equalityOperator
+          EqualityOperator equalityOperator = new EqualityOperator();
+          equalityOperator.setEquality(EqualityOperator.Equality.Lesser);
+          //Create sinkOperator
+          SinkOperator sinkOperator = new SinkOperator();
+
+          //Create connection which connects equalityOperator to sinkOperator
+          Connection equalityToSinkConnection = new Connection();
+          //Connect to sinkOperator
+          sinkOperator.addInputConnection(equalityToSinkConnection, 0);
+          //Connect to equalityOperator
+          equalityOperator.addOutputConnection(equalityToSinkConnection, 0);
+
+          //Create connection which connects arithmeticOperator to equalityOperator
+          Connection arithmeticToEqualityConnection = new Connection();
+          //Connect to equalityOperator
+          equalityOperator.addInputConnection(arithmeticToEqualityConnection, 0);
+          //Connect to arithmeticOperator
+          arithmeticOperator.addOutputConnection(arithmeticToEqualityConnection, 0);
+
+          //Create connection which connects doubleConstantOperator to equalityOperator
+          Connection doubleConstantToEqualityConnection = new Connection();
+          //Connect to equalityOperator
+          equalityOperator.addInputConnection(doubleConstantToEqualityConnection, 1);
+          //Connect to doubleConstantOperator
+          doubleConstantOperator.addOutputConnection(doubleConstantToEqualityConnection, 0);
+
+          //Create connection which connects stockRelativeHistory1Operator to arithmeticOperator
+          Connection stockRelativeHistory1ToArithmeticConnection = new Connection();
+          //Connect to arithmeticOperator
+          arithmeticOperator.addInputConnection(stockRelativeHistory1ToArithmeticConnection, 0);
+          //Connect to arithmeticOperator
+          stockRelativeHistory1Operator.addOutputConnection(stockRelativeHistory1ToArithmeticConnection, 0);
+
+          //Create connection which connects stockRelativeHistory2Operator to arithmeticOperator
+          Connection stockRelativeHistory2ToArithmeticConnection = new Connection();
+          //Connect to arithmeticOperator
+          arithmeticOperator.addInputConnection(stockRelativeHistory2ToArithmeticConnection, 1);
+          //Connect to arithmeticOperator
+          stockRelativeHistory2Operator.addOutputConnection(stockRelativeHistory2ToArithmeticConnection, 0);
+
+          //Create OperatorIndicator
+          OperatorIndicator operatorIndicator2 = new OperatorIndicator("MACD Down Trend Signal");
+          operatorIndicator2.add(stockRelativeHistory1Operator);
+          operatorIndicator2.add(stockRelativeHistory2Operator);
+          operatorIndicator2.add(equalityOperator);
+          operatorIndicator2.add(arithmeticOperator);
+          operatorIndicator2.add(doubleConstantOperator);
+          operatorIndicator2.add(sinkOperator);
+          org.yccheok.jstock.gui.Utils.toXML(operatorIndicator2, "hai.xml");
+        }
         if (operatorIndicator == null) {
             throw new IOException();
         }
