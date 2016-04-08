@@ -86,7 +86,8 @@ public class DependencyFigure extends LineConnectionFigure {
      * Handles the connection of a connection.
      * Override this method to handle this event.
      */
-    protected void handleConnect(Connector start, Connector end) {
+    //protected void handleConnect(Connector start, Connector end) {
+    public void handleConnect(Connector start, Connector end) {
         final IndexedConnector indexedStart = (IndexedConnector)start;
         final IndexedConnector indexedEnd = (IndexedConnector)end;
         indexedStart.setNumOfConnection(1);

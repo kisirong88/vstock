@@ -305,6 +305,11 @@ public abstract class OperatorFigure extends GraphicalCompositeFigure implements
         super.removeNotify(d);
         System.out.println(this + " removeNotify");
     }
+
+    public org.jhotdraw.draw.Connector getConnector(int index)
+    {
+        return connectors.get(index);
+    }
     
     public Operator getOperator()
     {
