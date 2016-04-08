@@ -28,6 +28,8 @@ import org.jhotdraw.draw.*;
 import java.awt.geom.*;
 import java.util.*;
 import java.io.*;
+import java.awt.Font;
+import java.awt.Color;
 import org.jhotdraw.undo.UndoRedoManager;
 import org.yccheok.jstock.analysis.*;
 
@@ -276,6 +278,17 @@ public class IndicatorDefaultDrawing extends org.jhotdraw.draw.DefaultDrawing {
           this.basicAdd(counter, sinkOperatorFigure);
 
           counter++;
+          TextFigure textFigure = new TextFigure();
+          x = 202;
+          y = 179;
+          w = 607;
+          h = 40;
+          textFigure.setBounds(new Point2D.Double(x,y), new Point2D.Double(x+w,y+h));
+          textFigure.setText(" Moving Average Convergence / Divergence. When MACD is negative, the stock is moving in downward trend.");
+          //textFigure.setAttribute("FillColor", java.awt.Color.YELLOW);
+          this.basicAdd(counter, textFigure);
+
+          counter++;
           DependencyFigure dep1 = new DependencyFigure();
           org.jhotdraw.draw.Connector start1 = stockRelativeHistory1OperatorFigure.getConnector(0);
           org.jhotdraw.draw.Connector end1 = arithmeticOperatorFigure.getConnector(0);
@@ -295,12 +308,30 @@ public class IndicatorDefaultDrawing extends org.jhotdraw.draw.DefaultDrawing {
 
           counter++;
           DependencyFigure dep3 = new DependencyFigure();
-          org.jhotdraw.draw.Connector start3 = arithmeticOperatorFigure.getConnector(2);
+          org.jhotdraw.draw.Connector start3 = doubleConstantOperatorFigure.getConnector(0);
           org.jhotdraw.draw.Connector end3 = equalityOperatorFigure.getConnector(0);
           dep3.handleConnect(start3, end3);
           dep3.setStartPoint(new Point2D.Double(547.328125, 325.3759765625));
           dep3.setEndPoint(new Point2D.Double(641, 333.18798828125));
           this.basicAdd(counter, dep3);
+
+          counter++;
+          DependencyFigure dep4 = new DependencyFigure();
+          org.jhotdraw.draw.Connector start4 = arithmeticOperatorFigure.getConnector(2);
+          org.jhotdraw.draw.Connector end4 = equalityOperatorFigure.getConnector(1);
+          dep4.handleConnect(start4, end4);
+          dep4.setStartPoint(new Point2D.Double(559.849609375, 439.453125));
+          dep4.setEndPoint(new Point2D.Double(641, 362.1796875));
+          this.basicAdd(counter, dep4);
+
+          counter++;
+          DependencyFigure dep5 = new DependencyFigure();
+          org.jhotdraw.draw.Connector start5 = equalityOperatorFigure.getConnector(2);
+          org.jhotdraw.draw.Connector end5 = sinkOperatorFigure.getConnector(0);
+          dep5.handleConnect(start5, end5);
+          dep5.setStartPoint(new Point2D.Double(712.212890625, 347.453125));
+          dep5.setEndPoint(new Point2D.Double(782, 343.453125));
+          this.basicAdd(counter, dep5);
           /*final AbstractConnector c = new AbstractConnector();
           c.setOwner(stockRelativeHistory1Operator);*/
           //org.yccheok.jstock.gui.Utils.toXML(stockRelativeHistory1OperatorFigure, "figure.xml");
