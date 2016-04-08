@@ -96,7 +96,12 @@ public class Download {
                 symbol = java.net.URLEncoder.encode(code, "UTF-8");
             } catch (UnsupportedEncodingException ex) {
             }
+            File dirFile = new File(dir);
+            if (dirFile.exists() == false) {
+              dirFile.mkdir();
+            }
             final String historyFile = dir + File.separator + symbol + ".xml";
+            File file = new File(historyFile);
             System.out.println("DEBUG historyFile "+historyFile);
 
             //final boolean isExist = org.yccheok.jstock.gui.Utils.isFileOrDirectoryExist(historyFile);
@@ -125,7 +130,7 @@ public class Download {
             System.out.println("DEBUG download history location "+historyLocation);
             String historyRespond = "";
             try {
-              URL url = new URL(location);
+              URL url = new URL(historyLocation);
               try {
                 InputStream historyIn = url.openStream();
                 try {
