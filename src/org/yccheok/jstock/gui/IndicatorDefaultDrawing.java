@@ -99,10 +99,23 @@ public class IndicatorDefaultDrawing extends org.jhotdraw.draw.DefaultDrawing {
         
         InputFormat inputFormat = this.getInputFormats().get(0);
         inputFormat.read(jHotdrawFile, this);
-
-        OperatorIndicator operatorIndicator = org.yccheok.jstock.gui.Utils.fromXML(OperatorIndicator.class, xStreamFile);
-        //System.out.println("DEBUG operatorIndicatorFilename "+operatorIndicatorFilename);
         if (operatorIndicatorFilename.indexOf("MACD Down Trend Signal.xml") >= 0) {
+          //IndicatorDefaultDrawing alertDefaultDrawing = IndicatorDefaultDrawing();
+          /*StockRelativeHistoryOperatorFigure stockRelativeHistory1OperatorFigure = new StockRelativeHistoryOperatorFigure();
+          StockRelativeHistoryOperatorFigure stockRelativeHistory2OperatorFigure = new StockRelativeHistoryOperatorFigure();
+          ArithmeticOperatorFigure arithmeticOperatorFigure = new ArithmeticOperatorFigure();
+          DoubleConstantOperatorFigure doubleConstantOperatorFigure = new DoubleConstantOperatorFigure();
+          EqualityOperatorFigure equalityOperatorFigure = new EqualityOperatorFigure();*/
+        }
+
+        //OperatorIndicator operatorIndicator = org.yccheok.jstock.gui.Utils.fromXML(OperatorIndicator.class, xStreamFile);
+        OperatorIndicator operatorIndicator;
+        if (operatorIndicatorFilename.indexOf("MACD Down Trend Signal local") < 0) {
+          operatorIndicator = org.yccheok.jstock.gui.Utils.fromXML(OperatorIndicator.class, xStreamFile);
+        } else {
+        //System.out.println("DEBUG operatorIndicatorFilename "+operatorIndicatorFilename);
+        //if (operatorIndicatorFilename.indexOf("MACD Down Trend Signal.xml") >= 0) {
+        //if (operatorIndicatorFilename.indexOf("MACD Down Trend Signal local") >= 0) {
           System.out.println("DEBUG operatorIndicatorFilename "+operatorIndicatorFilename);
           //Constructor of operators will create automatically output connectors pointing to these operator
           //Constructor of operators will create automatically input connectors pointing to these operator
@@ -160,14 +173,14 @@ public class IndicatorDefaultDrawing extends org.jhotdraw.draw.DefaultDrawing {
           stockRelativeHistory2Operator.addOutputConnection(stockRelativeHistory2ToArithmeticConnection, 0);
 
           //Create OperatorIndicator
-          OperatorIndicator operatorIndicator2 = new OperatorIndicator("MACD Down Trend Signal");
-          operatorIndicator2.add(stockRelativeHistory1Operator);
-          operatorIndicator2.add(stockRelativeHistory2Operator);
-          operatorIndicator2.add(equalityOperator);
-          operatorIndicator2.add(arithmeticOperator);
-          operatorIndicator2.add(doubleConstantOperator);
-          operatorIndicator2.add(sinkOperator);
-          org.yccheok.jstock.gui.Utils.toXML(operatorIndicator2, "hai.xml");
+          operatorIndicator = new OperatorIndicator("MACD Down Trend Signal");
+          operatorIndicator.add(stockRelativeHistory1Operator);
+          operatorIndicator.add(stockRelativeHistory2Operator);
+          operatorIndicator.add(equalityOperator);
+          operatorIndicator.add(arithmeticOperator);
+          operatorIndicator.add(doubleConstantOperator);
+          operatorIndicator.add(sinkOperator);
+          org.yccheok.jstock.gui.Utils.toXML(operatorIndicator, "hai.xml");
         }
         if (operatorIndicator == null) {
             throw new IOException();

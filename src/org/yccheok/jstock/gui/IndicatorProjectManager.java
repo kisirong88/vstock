@@ -57,6 +57,7 @@ public class IndicatorProjectManager {
 
         this.preferredOperatorIndicatorType = preferredOperatorIndicatorType;
         this.directory = directory;
+        projects.add(0, "MACD Down Trend Signal local");
     }
 
     public int getNumOfProject() {
