@@ -1237,16 +1237,16 @@ public class MainFrame extends javax.swing.JFrame {
 
     public void newFilter()
     {
-      System.out.println("DEBUG newFilter");
+      //System.out.println("DEBUG newFilter");
       RowFilter<StockTableModel,Integer> boardFilter = new RowFilter<StockTableModel, Integer>() {
         public boolean include(Entry<? extends StockTableModel, ? extends Integer> entry) {
           StockTableModel tableModel = entry.getModel();
           Stock stock = tableModel.getStock(entry.getIdentifier());
-          System.out.println("DEBUG Check stock board "+stock.getBoard());
+          //System.out.println("DEBUG Check stock board "+stock.getBoard());
           if(stock.getBoard().toString().equals("Unknown"))
             return true;
           for (String board : activatedBoards) {
-            System.out.println("DEBUG Check board "+board);
+            //System.out.println("DEBUG Check board "+board);
             if (stock.getBoard().toString().equals(board)) {
               // Returning true indicates this row should be shown.
               return true;
@@ -4151,18 +4151,18 @@ public class MainFrame extends javax.swing.JFrame {
         Country country = this.jStockOptions.getCountry();
         activatedBoards.clear();
         activatedBoards.addAll(org.yccheok.jstock.engine.Utils.getBoards(country));
-        for (String board : activatedBoards) {
+        /*for (String board : activatedBoards) {
           System.out.println("DEBUG init board "+board);
-        }
+        }*/
     }
     public void deactivateBoard(String board) {
         if (activatedBoards != null) {
-          System.out.println("DEBUG Doing deactivate board "+board);
-          for (String board2 : activatedBoards) {
+          //System.out.println("DEBUG Doing deactivate board "+board);
+          /*for (String board2 : activatedBoards) {
             System.out.println("DEBUG iterate board "+board2);
-          }
+          }*/
           activatedBoards.remove(board);
-          System.out.println("DEBUG Finish deactivate board ");
+          //System.out.println("DEBUG Finish deactivate board ");
         }
     }
     public void activateBoard(String board) {

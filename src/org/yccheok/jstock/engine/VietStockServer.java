@@ -185,11 +185,11 @@ public class VietStockServer implements StockServer {
         } catch (UnsupportedEncodingException ex) {
             throw new StockNotFoundException(code.toString(), ex);
         }
-        System.out.println("code "+code);
+        //System.out.println("code "+code);
 
         if (!code.toString().equals("^VNINDEX") && !code.toString().equals("^HNXINDEX")) {
           final String language = MainFrame.getInstance().getJStockOptions().getLanguage();
-          System.out.println("language "+language);
+          //System.out.println("language "+language);
           if ((language == null) || (language.equals("English"))) {
             stringBuilder.append(_code).append("&language=en");
           } else {
@@ -199,7 +199,7 @@ public class VietStockServer implements StockServer {
         }
 
         final String location = stringBuilder.toString();
-        System.out.println("location "+location);
+        //System.out.println("location "+location);
 
         for (int retry = 0; retry < NUM_OF_RETRY; retry++) {
             final String respond = org.yccheok.jstock.gui.Utils.getResponseBodyAsStringBasedOnProxyAuthOption(location);
@@ -208,7 +208,7 @@ public class VietStockServer implements StockServer {
                 continue;
             }
             final List<Stock> stocks = VietStockFormat.getInstance().parse(respond);
-            System.out.println("DEBUG CHECK StockCode "+stocks.get(0).code.toString()+", symbol "+stocks.get(0).symbol.toString()+", prevPrice "+stocks.get(0).getPrevPrice()+", highPrice "+stocks.get(0).getHighPrice());
+            //System.out.println("DEBUG CHECK StockCode "+stocks.get(0).code.toString()+", symbol "+stocks.get(0).symbol.toString()+", prevPrice "+stocks.get(0).getPrevPrice()+", highPrice "+stocks.get(0).getHighPrice());
 
             if (stocks.size() == 1) {
                 return stocks.get(0);

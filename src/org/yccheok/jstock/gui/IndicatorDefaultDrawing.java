@@ -109,7 +109,7 @@ public class IndicatorDefaultDrawing extends org.jhotdraw.draw.DefaultDrawing {
         //System.out.println("DEBUG operatorIndicatorFilename "+operatorIndicatorFilename);
         //if (operatorIndicatorFilename.indexOf("MACD Down Trend Signal.xml") >= 0) {
         //if (operatorIndicatorFilename.indexOf("MACD Down Trend Signal local") >= 0) {
-          System.out.println("DEBUG operatorIndicatorFilename "+operatorIndicatorFilename);
+          //System.out.println("DEBUG operatorIndicatorFilename "+operatorIndicatorFilename);
           //Constructor of operators will create automatically output connectors pointing to these operator
           //Constructor of operators will create automatically input connectors pointing to these operator
           //But constructor of operators don't create connections

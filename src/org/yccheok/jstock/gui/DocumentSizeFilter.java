@@ -48,9 +48,9 @@ public class DocumentSizeFilter extends DocumentFilter {
     public void insertString(FilterBypass fb, int offs,
                              String str, AttributeSet a)
         throws BadLocationException {
-        if (DEBUG) {
+        /*if (DEBUG) {
             System.out.println("in DocumentSizeFilter's insertString method");
-        }
+        }*/
 
         //This rejects the entire insertion if it would make
         //the contents too long. Another option would be

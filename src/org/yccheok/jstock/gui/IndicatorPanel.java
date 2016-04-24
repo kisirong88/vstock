@@ -1659,12 +1659,14 @@ public class IndicatorPanel extends JPanel {
     public final void initIndicatorProjectManager() {
         File f = new File(org.yccheok.jstock.gui.Utils.getUserDataDirectory() + "indicator" + File.separator + "project.xml");
         this.alertIndicatorProjectManager = org.yccheok.jstock.gui.Utils.fromXML(IndicatorProjectManager.class, f);
+        //this.alertIndicatorProjectManager = new IndicatorProjectManager("/home/hoanghai/.jstock/1.0.7/indicator", OperatorIndicator.Type.AlertIndicator);
         if (this.alertIndicatorProjectManager != null) {
             log.info("alertIndicatorProjectManager loaded from " + f.toString() + " successfully.");
         }
         else {
             this.alertIndicatorProjectManager = new IndicatorProjectManager(org.yccheok.jstock.gui.Utils.getUserDataDirectory() + "indicator", OperatorIndicator.Type.AlertIndicator);
         }         
+        this.alertIndicatorProjectManager.addProject(0, "MACD Down Trend Signal local");
         
         // Cleanup unused files.
         Set<String> validFileNames = new HashSet<String>();

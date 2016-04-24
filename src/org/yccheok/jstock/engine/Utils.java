@@ -188,7 +188,7 @@ public class Utils {
       /*final Pattern openBrackets = Pattern.compile("[");
       final Pattern closeBrackets = Pattern.compile("]");*/
       final String language = MainFrame.getInstance().getJStockOptions().getLanguage();
-      System.out.println("language "+language);
+      //System.out.println("language "+language);
       String url = "";
       if ((language == null) || (language.equals("English"))) {
         url = "http://finance.vietstock.vn/GetCompanyList.ashx?language=en";
@@ -196,7 +196,7 @@ public class Utils {
         url = "http://finance.vietstock.vn/GetCompanyList.ashx";
       }
       final String location = url;
-      System.out.println("list company location "+location);
+      //System.out.println("list company location "+location);
       final String respond = org.yccheok.jstock.gui.Utils.getResponseBodyAsStringBasedOnProxyAuthOption(location);
       //System.out.println("respond "+respond);
       final String[] strings = respond.split("\\[|\\]");
@@ -252,7 +252,7 @@ public class Utils {
         } catch (UnsupportedEncodingException ex) {
         }       
         final String historyFile = org.yccheok.jstock.gui.Utils.getHistoryDirectory() + File.separator + symbol + ".xml";
-        System.out.println("DEBUG historyFile "+historyFile);
+        //System.out.println("DEBUG historyFile "+historyFile);
         final boolean isExist = org.yccheok.jstock.gui.Utils.isFileOrDirectoryExist(historyFile);
         final StringBuilder stringBuilder = new StringBuilder("http://finance.vietstock.vn/Controls/TradingResult/Matching_Hose_Result.aspx?scode=");
         stringBuilder.append(symbol);
@@ -273,7 +273,7 @@ public class Utils {
         endDateBuilder.append(endMonth).append("%2F").append(endDate).append("%2F").append(endYear);
         stringBuilder.append(startDateBuilder).append(endDateBuilder).append("&exp=xml");
         final String historyLocation = stringBuilder.toString();
-        System.out.println("DEBUG download history location "+historyLocation);
+        //System.out.println("DEBUG download history location "+historyLocation);
         final String historyRespond = org.yccheok.jstock.gui.Utils.getResponseBodyAsStringBasedOnProxyAuthOption(historyLocation);
         try {
             //PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(historyFile, true)));

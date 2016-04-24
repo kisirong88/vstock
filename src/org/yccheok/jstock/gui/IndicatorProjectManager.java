@@ -57,7 +57,7 @@ public class IndicatorProjectManager {
 
         this.preferredOperatorIndicatorType = preferredOperatorIndicatorType;
         this.directory = directory;
-        projects.add(0, "MACD Down Trend Signal local");
+        //projects.add(0, "MACD Down Trend Signal local");
     }
 
     public int getNumOfProject() {
@@ -66,6 +66,12 @@ public class IndicatorProjectManager {
     
     public String getProject(int index) {
         return projects.get(index);
+    }
+    
+    public void addProject(int index, String project) {
+        if (this.contains(project) == false) {
+          projects.add(index, project);
+        }
     }
     
     // Overwrite is allowed.

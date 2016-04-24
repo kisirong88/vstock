@@ -181,7 +181,7 @@ public class StockInfoDatabase {
         reader.lock();
         try {
             StockInfo stockInfo = this.codeSearchEngine.search(string);
-            System.out.println("DEBUG searchStockInfos "+string);
+            //System.out.println("DEBUG searchStockInfos "+string);
             if (null == stockInfo) {
                 if (this.symbolPinyinSearchEngine != null) {
                     stockInfo = this.symbolPinyinSearchEngine.search(string);

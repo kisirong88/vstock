@@ -149,7 +149,7 @@ public class VietStockHistoryServer implements StockHistoryServer {
             if (element[1].length() == 1)
               element[1] = "0"+element[1];
             String day = element[2]+"-"+element[0]+"-"+element[1];
-            System.out.println("DEBUG day "+day);
+            //System.out.println("DEBUG day "+day);
             try {
                 timestamp = simpleDateFormatThreadLocal.get().parse(day).getTime();
             } catch (ParseException ex) {
@@ -213,7 +213,7 @@ public class VietStockHistoryServer implements StockHistoryServer {
                     timestamp
                     );
 
-            System.out.println("DEBUG StockCode "+code.toString()+", prevPrice "+prevPrice+", highPrice "+highPrice+", timestamp "+timestamp);
+            //System.out.println("DEBUG StockCode "+code.toString()+", prevPrice "+prevPrice+", highPrice "+highPrice+", timestamp "+timestamp);
             historyDatabase.put(timestamp, stock);
             timestamps.add(timestamp);
             previousClosePrice = closePrice;
@@ -267,7 +267,7 @@ public class VietStockHistoryServer implements StockHistoryServer {
         boolean success = false;
 
         for (int retry = 0; retry < NUM_OF_RETRY; retry++) {
-            System.out.println("DEBUG buildHistory location "+location);
+            //System.out.println("DEBUG buildHistory location "+location);
             final String respond = org.yccheok.jstock.gui.Utils.getResponseBodyAsStringBasedOnProxyAuthOption(location);
             //System.out.println("DEBUG respond "+respond);
 

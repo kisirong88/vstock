@@ -141,7 +141,7 @@ public class MarketJPanel extends javax.swing.JPanel {
             leftPanel2.add(box);
             box.addItemListener(new java.awt.event.ItemListener() {
                 public void itemStateChanged(java.awt.event.ItemEvent evt) {
-                    System.out.println("DEBUG check box board is changed");
+                    //System.out.println("DEBUG check box board is changed");
                     boardCheckBoxItemStateChanged(evt);
                 }
             });
@@ -176,15 +176,15 @@ public class MarketJPanel extends javax.swing.JPanel {
 
         if(!me.isSelected()) {
           final MainFrame m = MainFrame.getInstance();
-          System.out.println("DEBUG Deactivate board "+me.getText());
+          //System.out.println("DEBUG Deactivate board "+me.getText());
           m.deactivateBoard(me.getText());
-          System.out.println("DEBUG start newFilter");
+          //System.out.println("DEBUG start newFilter");
           m.newFilter();
         } else {
           final MainFrame m = MainFrame.getInstance();
-          System.out.println("DEBUG Activate board "+me.getText());
+          //System.out.println("DEBUG Activate board "+me.getText());
           m.activateBoard(me.getText());
-          System.out.println("DEBUG start newFilter");
+          //System.out.println("DEBUG start newFilter");
           m.newFilter();
         }
     }
